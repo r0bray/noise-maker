@@ -37,11 +37,25 @@ Adafruit_VS1053_FilePlayer musicPlayer =
   // create shield-example object!
   Adafruit_VS1053_FilePlayer(SHIELD_RESET, SHIELD_CS, SHIELD_DCS, DREQ, CARDCS);
 
+////
+
+// Setting up Pushbuttons
+const int playButtonPin = 2;  // the number of the PLAY pushbutton pin
+int playButtonState = 0;  // variable for reading the pushbutton status
+int playbuttonPressed = 0;  // variable for holding state of the pushbutton 
+
+
 
 ////
 
 void setup() {
   Serial.begin(9600);
+ 
+  // * Button Setups *
+  // initialize the Play pushbutton pin as an input:
+  pinMode(playButtonPin, INPUT);
+  
+
   Serial.println("Adafruit VS1053 Library Test");
 
   // initialise the music player
@@ -60,7 +74,7 @@ void setup() {
   Serial.println("SD OK!");
   
   // list files
-  printDirectory(SD.open("/"), 0);
+  // printDirectory(SD.open("/"), 0);
   
   // Set volume for left, right channels. lower numbers == louder volume!
   musicPlayer.setVolume(20,20);
@@ -86,20 +100,38 @@ void loop() {
   // file is played and the program will continue when it's done!
   // musicPlayer.playFullFile("track001.ogg");
 
-  // Start playing a file, then we can do stuff while waiting for it to finish
-  if (! musicPlayer.startPlayingFile("/track001.mp3")) {
-    Serial.println("Could not open file track001.mp3");
-    while (1);
-  }
-  Serial.println(F("Started playing"));
+    playButtonState = digitalRead(playButtonPin);
+    // Prints 1 when pushed, otherwise 0
+    // Serial.println(digitalRead(playButtonPin));
 
-  while (musicPlayer.playingMusic) {
-    // file is now playing in the 'background' so now's a good time
-    // to do something else like handling LEDs or buttons :)
-    Serial.print(".");
-    delay(1000);
+
+  // GPIO1 is the Play button
+  // if (musicPlayer.GPIO_digitalRead(2) == HIGH) {
+
+  if (playButtonState == HIGH) {
+      Serial.println("Button pushed!");
+      playbuttonPressed = 1;
+      // Start playing a file, then we can do stuff while waiting for it to finish
+      if (! musicPlayer.startPlayingFile("/track001.mp3")) {
+        Serial.println("Could not open file track001.mp3");
+        // this will hold the code in a "endless loop" until the board is reset.
+        while (1);
+      }
+      Serial.println(F("Started playing"));
+
+      while (musicPlayer.playingMusic) {
+        // file is now playing in the 'background' so now's a good time
+        // to do something else like handling LEDs or buttons :)
+        // Serial.print(".");
+        // delay(1000);
+        // volume();
+        delay(1000);
+      }
+      playbuttonPressed = 0;
   }
-  Serial.println("Done playing music");
+
+  // Serial.println("Done playing music");
+
 }
 
 
