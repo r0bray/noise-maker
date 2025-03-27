@@ -12,7 +12,7 @@
   BSD license, all text above must be included in any redistribution
  ****************************************************/
 
-// include SPI, MP3 and SD libraries
+// include SPI, MP3 and SD libraries. Woo hoo!
 #include <SPI.h>
 #include <Adafruit_VS1053.h>
 #include <SD.h>
