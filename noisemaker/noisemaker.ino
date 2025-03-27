@@ -39,7 +39,7 @@ Adafruit_VS1053_FilePlayer musicPlayer =
 
 ////
 
-// Setting up Pushbuttons
+// Setting up Pushbuttons Hooray!
 const int playButtonPin = 2;  // the number of the PLAY pushbutton pin
 int playButtonState = 0;  // variable for reading the pushbutton status
 int playbuttonPressed = 0;  // variable for holding state of the pushbutton 
