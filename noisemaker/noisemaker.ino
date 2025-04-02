@@ -61,7 +61,7 @@ int volUpButtonPressed = 0;  // variable for holding state of the pushbutton
 int volDownButtonState = 0;  // variable for reading the pushbutton status
 int volDownButtonPressed = 0;  // variable for holding state of the pushbutton 
 
-int volValue = 20 // variable for default volume value
+int volValue = 20; // variable for default volume value
 int volStep = 5;  // variable for amount we should step the vol up or down when button is pressed
 
 
