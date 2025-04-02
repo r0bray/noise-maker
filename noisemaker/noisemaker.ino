@@ -46,8 +46,6 @@ const int backButtonPin = 4;  // the number of the BACK pushbutton pin
 const int volUpButtonPin = 5;  // the number of the VOL UP pushbutton pin
 const int volDownButtonPin = 6;  // the number of the VOL DOWN pushbutton pin
 
-
-
 int playButtonState = 0;  // variable for reading the pushbutton status
 int playButtonPressed = 0;  // variable for holding state of the pushbutton 
 
@@ -71,8 +69,12 @@ void setup() {
   Serial.begin(9600);
  
   // * Button Setups *
-  // initialize the Play pushbutton pin as an input:
+  // initialize our pushbutton pins as inputs:
   pinMode(playButtonPin, INPUT);
+  pinMode(forwardButtonPin, INPUT);
+  pinMode(backButtonPin, INPUT);
+  pinMode(volUpButtonPin, INPUT);
+  pinMode(volDownButtonPin, INPUT);
   
 
   Serial.println("Adafruit VS1053 Library Test");
