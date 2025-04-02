@@ -41,8 +41,27 @@ Adafruit_VS1053_FilePlayer musicPlayer =
 
 // Setting up Pushbuttons Hooray!
 const int playButtonPin = 2;  // the number of the PLAY pushbutton pin
+const int forwardButtonPin = 3;  // the number of the FWD pushbutton pin
+const int backButtonPin = 4;  // the number of the BACK pushbutton pin
+const int volUpButtonPin = 5;  // the number of the VOL UP pushbutton pin
+const int volDownButtonPin = 6;  // the number of the VOL DOWN pushbutton pin
+
+
+
 int playButtonState = 0;  // variable for reading the pushbutton status
-int playbuttonPressed = 0;  // variable for holding state of the pushbutton 
+int playButtonPressed = 0;  // variable for holding state of the pushbutton 
+
+int forwardButtonState = 0;  // variable for reading the pushbutton status
+int forwardButtonPressed = 0;  // variable for holding state of the pushbutton 
+
+int backButtonState = 0;  // variable for reading the pushbutton status
+int backButtonPressed = 0;  // variable for holding state of the pushbutton 
+
+int volUpButtonState = 0;  // variable for reading the pushbutton status
+int volUpButtonPressed = 0;  // variable for holding state of the pushbutton 
+
+int volDownButtonState = 0;  // variable for reading the pushbutton status
+int volDownButtonPressed = 0;  // variable for holding state of the pushbutton 
 
 
 
@@ -110,7 +129,7 @@ void loop() {
 
   if (playButtonState == HIGH) {
       Serial.println("Button pushed!");
-      playbuttonPressed = 1;
+      playButtonPressed = 1;
       // Start playing a file, then we can do stuff while waiting for it to finish
       if (! musicPlayer.startPlayingFile("/track001.mp3")) {
         Serial.println("Could not open file track001.mp3");
@@ -127,7 +146,7 @@ void loop() {
         // volume();
         delay(1000);
       }
-      playbuttonPressed = 0;
+      playButtonPressed = 0;
   }
 
   // Serial.println("Done playing music");
