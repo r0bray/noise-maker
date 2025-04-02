@@ -61,6 +61,8 @@ int volUpButtonPressed = 0;  // variable for holding state of the pushbutton
 int volDownButtonState = 0;  // variable for reading the pushbutton status
 int volDownButtonPressed = 0;  // variable for holding state of the pushbutton 
 
+int volValue = 20 // variable for default volume value
+int volStep = 5;  // variable for amount we should step the vol up or down when button is pressed
 
 
 ////
@@ -98,7 +100,7 @@ void setup() {
   // printDirectory(SD.open("/"), 0);
   
   // Set volume for left, right channels. lower numbers == louder volume!
-  musicPlayer.setVolume(20,20);
+  musicPlayer.setVolume(volValue,volValue);
 
   /***** Two interrupt options! *******/ 
   // This option uses timer0, this means timer1 & t2 are not required
