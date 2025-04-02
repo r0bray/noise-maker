@@ -163,8 +163,8 @@ void loop() {
 
          if (volUpButtonPin == HIGH) {
             Serial.println(F("VOL UP button pressed"));
-            // Code should go here to increase the volume (lower the number).
-            // TODO: Figure out how to see if we are hitting the threshold number. If so 1. Beep 2. Do not exceed.
+            // Increase the volume (lower the number).
+            // TODO: Figure out how to see if we are hitting the threshold number. If so, Beep and Do not exceed.
             volValue = volValue - volStep;
             musicPlayer.setVolume(volValue,volValue);
             Serial.print(F("VOL is now "));
@@ -173,7 +173,7 @@ void loop() {
 
          if (volDownButtonPin == HIGH) {
             Serial.println(F("VOL DOWN button pressed"));
-            // Code should go here to decrease the volume (raise the number).
+            // Decrease the volume (raise the number).
             volValue = volValue + volStep;
             musicPlayer.setVolume(volValue,volValue);
             Serial.print(F("VOL is now "));
