@@ -146,7 +146,31 @@ void loop() {
         // Serial.print(".");
         // delay(1000);
         // volume();
-        delay(1000);
+        //delay(1000);
+
+         if (forwardButtonPin == HIGH) {
+            Serial.println(F("FWD button pressed"));
+            // Code should go here to skip to the next track
+         }
+
+         if (backButtonPin == HIGH) {
+            Serial.println(F("BACK button pressed"));
+            // Code should go here to restart the track
+            // TODO: Figure out how to catch two button presses to go back to previous track.
+         }
+
+         if (volUpButtonPin == HIGH) {
+            Serial.println(F("VOL UP button pressed"));
+            // Code should go here to increase the volume.
+            // TODO: Figure out how to see if we are hitting the threshold number. If so 1. Beep 2. Do not exceed.
+         }
+
+         if (volDownButtonPin == HIGH) {
+            Serial.println(F("VOL DOWN button pressed"));
+            // Code should go here to decrease the volume.
+         }
+
+
       }
       playButtonPressed = 0;
   }
