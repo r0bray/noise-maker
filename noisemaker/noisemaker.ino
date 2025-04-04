@@ -13,6 +13,7 @@
  ****************************************************/
 
 // include SPI, MP3 and SD libraries. Woo hoo!
+
 #include <SPI.h>
 #include <Adafruit_VS1053.h>
 #include <SD.h>
@@ -39,31 +40,20 @@ Adafruit_VS1053_FilePlayer musicPlayer =
 
 ////
 
-// Setting up Pushbuttons Hooray!
-const int playButtonPin = 2;  // the number of the PLAY pushbutton pin
-const int forwardButtonPin = 3;  // the number of the FWD pushbutton pin
-const int backButtonPin = 4;  // the number of the BACK pushbutton pin
-const int volUpButtonPin = 5;  // the number of the VOL UP pushbutton pin
-const int volDownButtonPin = 6;  // the number of the VOL DOWN pushbutton pin
+// Setting up Pushbuttons. These are the GPIO pins on the Music Maker Shield
+const int playButtonPin = 1;  // PLAY pushbutton 
+const int volUpButtonPin = 2;  // VOL UP pushbutton 
+const int volDownButtonPin = 3;  // VOL DOWN pushbutton 
+const int forwardButtonPin = 4;  // FWD pushbutton 
+const int backButtonPin = 5;  // BACK pushbutton 
 
-int playButtonState = 0;  // variable for reading the pushbutton status
+// 0 is LOW, 1 is HIGH
 int playButtonPressed = 0;  // variable for holding state of the pushbutton 
-
-int forwardButtonState = 0;  // variable for reading the pushbutton status
-int forwardButtonPressed = 0;  // variable for holding state of the pushbutton 
-
-int backButtonState = 0;  // variable for reading the pushbutton status
 int backButtonPressed = 0;  // variable for holding state of the pushbutton 
 
-int volUpButtonState = 0;  // variable for reading the pushbutton status
-int volUpButtonPressed = 0;  // variable for holding state of the pushbutton 
-
-int volDownButtonState = 0;  // variable for reading the pushbutton status
-int volDownButtonPressed = 0;  // variable for holding state of the pushbutton 
-
+// Startup values
 int volValue = 20; // variable for default volume value
 int volStep = 5;  // variable for amount we should step the vol up or down when button is pressed
-
 
 ////
 
@@ -78,7 +68,6 @@ void setup() {
   pinMode(volUpButtonPin, INPUT);
   pinMode(volDownButtonPin, INPUT);
   
-
   Serial.println("Adafruit VS1053 Library Test");
 
   // initialise the music player
@@ -101,6 +90,8 @@ void setup() {
   
   // Set volume for left, right channels. lower numbers == louder volume!
   musicPlayer.setVolume(volValue,volValue);
+  Serial.print(F("VOL is "));
+  Serial.println(volValue);
 
   /***** Two interrupt options! *******/ 
   // This option uses timer0, this means timer1 & t2 are not required
@@ -123,66 +114,61 @@ void loop() {
   // file is played and the program will continue when it's done!
   // musicPlayer.playFullFile("track001.ogg");
 
-    playButtonState = digitalRead(playButtonPin);
-    // Prints 1 when pushed, otherwise 0
-    // Serial.println(digitalRead(playButtonPin));
-
-
   // GPIO1 is the Play button
-  // if (musicPlayer.GPIO_digitalRead(2) == HIGH) {
+  if (musicPlayer.GPIO_digitalRead(playButtonPin) == HIGH) {
 
-  if (playButtonState == HIGH) {
-      Serial.println("Button pushed!");
-      playButtonPressed = 1;
-      // Start playing a file, then we can do stuff while waiting for it to finish
-      if (! musicPlayer.startPlayingFile("/track001.mp3")) {
-        Serial.println("Could not open file track001.mp3");
-        // this will hold the code in a "endless loop" until the board is reset.
-        while (1);
+  //if (playButtonState == HIGH) {
+    Serial.println("Button pushed!");
+    playButtonPressed = 1;
+    // Start playing a file, then we can do stuff while waiting for it to finish
+    if (! musicPlayer.startPlayingFile("/track001.mp3")) {
+      Serial.println("Could not open file track001.mp3");
+      // this will hold the code in a "endless loop" until the board is reset.
+      while (1);
+    }
+    Serial.println(F("Started playing"));
+
+    while (musicPlayer.playingMusic) {
+      // file is now playing in the 'background' so now's a good time
+      // to do something else like handling LEDs or buttons :)
+      // Serial.print(".");
+      // delay(1000);
+      // volume();
+      //delay(1000);
+
+      if (musicPlayer.GPIO_digitalRead(forwardButtonPin) == HIGH) {
+        Serial.println(F("FWD button pressed"));
+        // Code should go here to skip to the next track
       }
-      Serial.println(F("Started playing"));
 
-      while (musicPlayer.playingMusic) {
-        // file is now playing in the 'background' so now's a good time
-        // to do something else like handling LEDs or buttons :)
-        // Serial.print(".");
-        // delay(1000);
-        // volume();
-        //delay(1000);
-
-         if (forwardButtonPin == HIGH) {
-            Serial.println(F("FWD button pressed"));
-            // Code should go here to skip to the next track
-         }
-
-         if (backButtonPin == HIGH) {
-            Serial.println(F("BACK button pressed"));
-            // Code should go here to restart the track
-            // TODO: Figure out how to catch two button presses to go back to previous track.
-         }
-
-         if (volUpButtonPin == HIGH) {
-            Serial.println(F("VOL UP button pressed"));
-            // Increase the volume (lower the number).
-            // TODO: Figure out how to see if we are hitting the threshold number. If so, Beep and Do not exceed.
-            volValue = volValue - volStep;
-            musicPlayer.setVolume(volValue,volValue);
-            Serial.print(F("VOL is now "));
-            Serial.println(volValue);
-         }
-
-         if (volDownButtonPin == HIGH) {
-            Serial.println(F("VOL DOWN button pressed"));
-            // Decrease the volume (raise the number).
-            volValue = volValue + volStep;
-            musicPlayer.setVolume(volValue,volValue);
-            Serial.print(F("VOL is now "));
-            Serial.println(volValue);
-         }
-
-
+      if (musicPlayer.GPIO_digitalRead(backButtonPin) == HIGH) {
+        Serial.println(F("BACK button pressed"));
+        // Code should go here to restart the track
+        // TODO: Figure out how to catch two button presses to go back to previous track.
       }
-      playButtonPressed = 0;
+
+      if (musicPlayer.GPIO_digitalRead(volUpButtonPin) == HIGH) {
+        Serial.println(F("VOL UP button pressed"));
+        // Increase the volume (lower the number).
+        // TODO: Figure out how to see if we are hitting the threshold number. If so, Beep and Do not exceed.
+        volValue = volValue - volStep;
+        musicPlayer.setVolume(volValue,volValue);
+        Serial.print(F("VOL is now "));
+        Serial.println(volValue);
+      }
+
+      if (musicPlayer.GPIO_digitalRead(volDownButtonPin) == HIGH) {
+        Serial.println(F("VOL DOWN button pressed"));
+        // Decrease the volume (raise the number).
+        volValue = volValue + volStep;
+        musicPlayer.setVolume(volValue,volValue);
+        Serial.print(F("VOL is now "));
+        Serial.println(volValue);
+      }
+
+
+    }
+    playButtonPressed = 0;
   }
 
   // Serial.println("Done playing music");
