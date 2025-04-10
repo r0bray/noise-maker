@@ -47,6 +47,9 @@ const int volDownButtonPin = 3;  // VOL DOWN pushbutton
 const int forwardButtonPin = 4;  // FWD pushbutton 
 const int backButtonPin = 5;  // BACK pushbutton 
 
+// playButton flag. detects whether or not music is playing
+bool isPlaying = false;
+
 // 0 is LOW, 1 is HIGH
 int playButtonPressed = 0;  // variable for holding state of the pushbutton 
 int backButtonPressed = 0;  // variable for holding state of the pushbutton 
@@ -116,18 +119,28 @@ void loop() {
 
   // GPIO1 is the Play button
   if (musicPlayer.GPIO_digitalRead(playButtonPin) == HIGH) {
+    delay(500);
 
-  //if (playButtonState == HIGH) {
-    Serial.println("Button pushed!");
-    playButtonPressed = 1;
-    // Start playing a file, then we can do stuff while waiting for it to finish
-    if (! musicPlayer.startPlayingFile("/track001.mp3")) {
-      Serial.println("Could not open file track001.mp3");
-      // this will hold the code in a "endless loop" until the board is reset.
-      while (1);
+    //if (playButtonState == HIGH) {
+    //play music
+    if (!isPlaying) {
+      Serial.println("Button pushed!");
+      playButtonPressed = 1;
+      // Start playing a file, then we can do stuff while waiting for it to finish
+      if (! musicPlayer.startPlayingFile("/track001.mp3")) {
+        Serial.println("Could not open file track001.mp3");
+        // this will hold the code in a "endless loop" until the board is reset.
+        while (1);
+      }
+      Serial.println(F("Started playing"));
+      isPlaying = true;
     }
-    Serial.println(F("Started playing"));
-
+    else {
+      Serial.println("Button Pushed!");
+      musicPlayer.stopPlaying();
+      Serial.println(F("paused"));
+      isPlaying = false;
+    }
     while (musicPlayer.playingMusic) {
       // file is now playing in the 'background' so now's a good time
       // to do something else like handling LEDs or buttons :)
@@ -148,6 +161,7 @@ void loop() {
       }
 
       if (musicPlayer.GPIO_digitalRead(volUpButtonPin) == HIGH) {
+        delay(500);
         Serial.println(F("VOL UP button pressed"));
         // Increase the volume (lower the number).
         // TODO: Figure out how to see if we are hitting the threshold number. If so, Beep and Do not exceed.
@@ -166,6 +180,10 @@ void loop() {
         Serial.println(volValue);
       }
 
+      if (musicPlayer.GPIO_digitalRead(playButtonPin) == HIGH) {
+        musicPlayer.stopPlaying();
+        Serial.println("Listening for Button!");
+      }
 
     }
     playButtonPressed = 0;
@@ -201,4 +219,3 @@ void printDirectory(File dir, int numTabs) {
      entry.close();
    }
 }
-
