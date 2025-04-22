@@ -71,7 +71,7 @@ void setup() {
   }
 
   myMP3.setVolume(15);
-  myMP3.setPlayModeNoLoop();
+  myMP3.setPlayModeFull(); // After song finishes the next will play.
   mainMenu();
 }
 
@@ -110,6 +110,7 @@ void loop() {
     myMP3.playPrevious();
     Serial.println(F("Playing previous track"));
   }
+
 }
 
 void mainMenu() {
@@ -122,6 +123,10 @@ void mainMenu() {
   Serial.println(F("f) Fast forward"));
   Serial.println(F("r) Reverse"));
   Serial.println(F("p) Play/Pause toggle"));
+
+  //TODO: How can I get this to loop through the loop mode options? Are these sticky after power down?
+  Serial.println(F("l) Set loop mode"));
+
   Serial.println(F("e) Set EQ"));
   Serial.println(F("m) Set play mode"));
   Serial.println(F("<) Play previous"));
