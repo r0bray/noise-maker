@@ -47,6 +47,10 @@ Bounce prevTrackButton = Bounce();
 SoftwareSerial serialMP3(8, 9);
 SparkFunMY1690 myMP3;
 
+// Variables
+unsigned long nextTrackButtonHoldStart = 0; // Tracks when the button was first pressed
+
+
 void setup() {
   Serial.begin(115200);
 
@@ -101,9 +105,33 @@ void loop() {
     Serial.println(myMP3.getVolume());
   }
 
-  if (nextTrackButton.fell()) {
-    myMP3.playNext();
-    Serial.println(F("Playing next track"));
+  // Handle nextTrackButton hold and press
+  static bool fastForwardTriggered = false; // Tracks if fast forward was triggered
+  static unsigned long lastFastForwardTime = 0; // Tracks the last time fastForward() was called
+
+  if (nextTrackButton.read() == LOW) { // Button is pressed
+    if (nextTrackButtonHoldStart == 0) {
+      nextTrackButtonHoldStart = millis(); // Record the time when the button was pressed
+    } else if (millis() - nextTrackButtonHoldStart >= 1000) { // Check if held for 1 second
+      if (!fastForwardTriggered) {
+        fastForwardTriggered = true; // Mark fast forward as triggered
+        lastFastForwardTime = millis(); // Initialize the timer for repeated calls
+        myMP3.fastForward();
+        Serial.println(F("Fast forwarding"));
+      } else if (millis() - lastFastForwardTime >= 500) { // Repeat every 500ms
+        lastFastForwardTime = millis();
+        myMP3.fastForward();
+        Serial.println(F("Fast forwarding"));
+      }
+    }
+  } else { // Button is released
+    if (!fastForwardTriggered && nextTrackButtonHoldStart != 0 && millis() - nextTrackButtonHoldStart < 1000) {
+      myMP3.playNext();
+      Serial.println(F("Playing next track"));
+    }
+    // Reset variables
+    nextTrackButtonHoldStart = 0;
+    fastForwardTriggered = false;
   }
 
   if (prevTrackButton.fell()) {
