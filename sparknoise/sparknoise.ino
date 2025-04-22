@@ -49,6 +49,7 @@ SparkFunMY1690 myMP3;
 
 // Variables
 unsigned long nextTrackButtonHoldStart = 0; // Tracks when the button was first pressed
+unsigned long prevTrackButtonHoldStart = 0; // Tracks when the button was first pressed
 
 
 void setup() {
@@ -134,9 +135,33 @@ void loop() {
     fastForwardTriggered = false;
   }
 
-  if (prevTrackButton.fell()) {
-    myMP3.playPrevious();
-    Serial.println(F("Playing previous track"));
+  // Handle prevTrackButton hold and press
+  static bool rewindTriggered = false; // Tracks if rewind was triggered
+  static unsigned long lastRewindTime = 0; // Tracks the last time rewind() was called
+
+  if (prevTrackButton.read() == LOW) { // Button is pressed
+    if (prevTrackButtonHoldStart == 0) {
+      prevTrackButtonHoldStart = millis(); // Record the time when the button was pressed
+    } else if (millis() - prevTrackButtonHoldStart >= 1000) { // Check if held for 1 second
+      if (!rewindTriggered) {
+        rewindTriggered = true; // Mark rewind as triggered
+        lastRewindTime = millis(); // Initialize the timer for repeated calls
+        myMP3.rewind();
+        Serial.println(F("Rewinding"));
+      } else if (millis() - lastRewindTime >= 500) { // Repeat every 500ms
+        lastRewindTime = millis();
+        myMP3.rewind();
+        Serial.println(F("Rewinding"));
+      }
+    }
+  } else { // Button is released
+    if (!rewindTriggered && prevTrackButtonHoldStart != 0 && millis() - prevTrackButtonHoldStart < 1000) {
+      myMP3.playPrevious();
+      Serial.println(F("Playing previous track"));
+    }
+    // Reset variables
+    prevTrackButtonHoldStart = 0;
+    rewindTriggered = false;
   }
 
 }
