@@ -32,9 +32,9 @@
 // Pins
 const int playButtonPin = 2;
 const int volUpButtonPin = 3;
-const int volDownButtonPin = 5;
-const int nextTrackPin = 6;
-const int prevTrackPin = 7;
+const int volDownButtonPin = 7;
+const int nextTrackPin = 10;
+const int prevTrackPin = 11;
 
 // Bounce objects
 Bounce playButton = Bounce();
