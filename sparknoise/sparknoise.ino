@@ -90,6 +90,8 @@ void loop() {
 
   // Check for button presses
   if (playButton.fell()) {
+    Serial.print(F("Track Number: "));
+    Serial.println((myMP3.getTrackNumber()));
     myMP3.playPause();
     Serial.println(F("Play/Pause toggled"));
   }
@@ -127,10 +129,13 @@ void loop() {
     }
   } else { // Button is released
     if (!fastForwardTriggered && nextTrackButtonHoldStart != 0 && millis() - nextTrackButtonHoldStart < 1000) {
-      // TODO: Make this play the current track from the start
-      // TODO: double click should be go back one track
+      Serial.print(F("Current Track Number: "));
+      Serial.println((myMP3.getTrackNumber()));
       myMP3.playNext();
-      Serial.println(F("Playing next track"));
+      Serial.println(F("Playing next track..."));
+      delay(500); //wait for the track to load before getting the number
+      Serial.print(F("Track Number is now: "));
+      Serial.println((myMP3.getTrackNumber()));
     }
     // Reset variables
     nextTrackButtonHoldStart = 0;
@@ -140,7 +145,9 @@ void loop() {
   // Handle prevTrackButton hold and press
   static bool rewindTriggered = false; // Tracks if rewind was triggered
   static unsigned long lastRewindTime = 0; // Tracks the last time rewind() was called
-
+  static unsigned long lastPrevTrackPressTime = 0; // Tracks the last button press time
+  static int prevTrackPressCount = 0; // Tracks the number of button presses
+  
   if (prevTrackButton.read() == LOW) { // Button is pressed
     if (prevTrackButtonHoldStart == 0) {
       prevTrackButtonHoldStart = millis(); // Record the time when the button was pressed
@@ -158,8 +165,45 @@ void loop() {
     }
   } else { // Button is released
     if (!rewindTriggered && prevTrackButtonHoldStart != 0 && millis() - prevTrackButtonHoldStart < 1000) {
-      myMP3.playPrevious();
-      Serial.println(F("Playing previous track"));
+      unsigned long currentTime = millis();
+      if (currentTime - lastPrevTrackPressTime <= 1500) { // Check for double press
+        prevTrackPressCount++;
+      } else {
+        prevTrackPressCount = 1; // Reset press count if more than 1 second has passed
+      }
+      lastPrevTrackPressTime = currentTime;
+  
+      if (prevTrackPressCount == 1) {
+        // This should restart the current track.
+        Serial.print(F("Press Count: "));
+        Serial.println((prevTrackPressCount));
+        Serial.print(F("Track Number: "));
+        Serial.println((myMP3.getTrackNumber()));
+        // There is a bug here where 
+        // track 1 plays 3, incorrectly
+        // 2 plays 2 correctly
+        // 3 plays 1, incorrectly.
+        // add more tracks and see what patterns appear
+        // myMP3.playTrackNumber(myMP3.getTrackNumber()); // Restart current track
+}
+        
+        
+        
+        delay(500); //wait for the track to load before getting the number
+        Serial.println(F("Restarting current track"));
+        Serial.print(F("Track Number: "));
+        Serial.println((myMP3.getTrackNumber()));
+      } else if (prevTrackPressCount == 2) {
+        // This should play the previous track.
+        Serial.print(F("Press Count: "));
+        Serial.println((prevTrackPressCount));
+        myMP3.playPrevious(); // Play previous track
+         delay(500); //wait for the track to load before getting the number
+        Serial.print(F("Track Number: "));
+        Serial.println((myMP3.getTrackNumber()));
+        Serial.println(F("Playing previous track"));
+        prevTrackPressCount = 0; // Reset press count after double press
+      }
     }
     // Reset variables
     prevTrackButtonHoldStart = 0;
@@ -178,10 +222,7 @@ void mainMenu() {
   Serial.println(F("f) Fast forward"));
   Serial.println(F("r) Reverse"));
   Serial.println(F("p) Play/Pause toggle"));
-
-  //TODO: How can I get this to loop through the loop mode options? Are these sticky after power down?
   Serial.println(F("l) Set loop mode"));
-
   Serial.println(F("e) Set EQ"));
   Serial.println(F("m) Set play mode"));
   Serial.println(F("<) Play previous"));
