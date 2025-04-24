@@ -127,6 +127,8 @@ void loop() {
     }
   } else { // Button is released
     if (!fastForwardTriggered && nextTrackButtonHoldStart != 0 && millis() - nextTrackButtonHoldStart < 1000) {
+      // TODO: Make this play the current track from the start
+      // TODO: double click should be go back one track
       myMP3.playNext();
       Serial.println(F("Playing next track"));
     }
