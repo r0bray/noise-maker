@@ -155,10 +155,10 @@ void loop() {
     if (prevTrackButtonHoldStart != 0 && millis() - prevTrackButtonHoldStart < 1000) {
       // Button was pressed and released within 1 second
       unsigned long currentTime = millis();
-      if (currentTime - lastPrevTrackPressTime <= 1000) { // Check for double press within 1 second
+      if (currentTime - lastPrevTrackPressTime <= 1500) { // Check for double press within 1.5 seconds
         prevTrackPressCount++;
       } else {
-        prevTrackPressCount = 1; // Reset press count if more than 1 second has passed
+        prevTrackPressCount = 1; // Reset press count if more than 1.5 seconds has passed
       }
       lastPrevTrackPressTime = currentTime;
 
@@ -173,6 +173,7 @@ void loop() {
         // Double press: Go to the previous track
         Serial.print(F("Double press. Playing previous track: "));
         myMP3.playPrevious();
+        delay(300);
         uint16_t currentTrackNum = myMP3.getTrackNumber(); // Get the current track number
         Serial.println(currentTrackNum);
         prevTrackPressCount = 0; // Reset press count after double press
