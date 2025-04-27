@@ -133,8 +133,8 @@ void loop() {
       Serial.println((myMP3.getTrackNumber()));
       myMP3.playNext();
       Serial.println(F("Playing next track..."));
-      delay(500); //wait for the track to load before getting the number
-      Serial.print(F("Track Number is now: "));
+      delay(500); // wait for the track to load before getting the number
+      Serial.print(F("Track number is now: "));
       Serial.println((myMP3.getTrackNumber()));
     }
     // Reset variables
@@ -145,9 +145,7 @@ void loop() {
   // Handle prevTrackButton hold and press
   static bool rewindTriggered = false; // Tracks if rewind was triggered
   static unsigned long lastRewindTime = 0; // Tracks the last time rewind() was called
-  static unsigned long lastPrevTrackPressTime = 0; // Tracks the last button press time
-  static int prevTrackPressCount = 0; // Tracks the number of button presses
-  
+
   if (prevTrackButton.read() == LOW) { // Button is pressed
     if (prevTrackButtonHoldStart == 0) {
       prevTrackButtonHoldStart = millis(); // Record the time when the button was pressed
@@ -165,45 +163,12 @@ void loop() {
     }
   } else { // Button is released
     if (!rewindTriggered && prevTrackButtonHoldStart != 0 && millis() - prevTrackButtonHoldStart < 1000) {
-      unsigned long currentTime = millis();
-      if (currentTime - lastPrevTrackPressTime <= 1500) { // Check for double press
-        prevTrackPressCount++;
-      } else {
-        prevTrackPressCount = 1; // Reset press count if more than 1 second has passed
-      }
-      lastPrevTrackPressTime = currentTime;
-  
-      if (prevTrackPressCount == 1) {
-        // This should restart the current track.
-        Serial.print(F("Press Count: "));
-        Serial.println((prevTrackPressCount));
-        Serial.print(F("Track Number: "));
-        Serial.println((myMP3.getTrackNumber()));
-        // There is a bug here where 
-        // track 1 plays 3, incorrectly
-        // 2 plays 2 correctly
-        // 3 plays 1, incorrectly.
-        // add more tracks and see what patterns appear
-        // myMP3.playTrackNumber(myMP3.getTrackNumber()); // Restart current track
-}
-        
-        
-        
-        delay(500); //wait for the track to load before getting the number
-        Serial.println(F("Restarting current track"));
-        Serial.print(F("Track Number: "));
-        Serial.println((myMP3.getTrackNumber()));
-      } else if (prevTrackPressCount == 2) {
-        // This should play the previous track.
-        Serial.print(F("Press Count: "));
-        Serial.println((prevTrackPressCount));
-        myMP3.playPrevious(); // Play previous track
-         delay(500); //wait for the track to load before getting the number
-        Serial.print(F("Track Number: "));
-        Serial.println((myMP3.getTrackNumber()));
-        Serial.println(F("Playing previous track"));
-        prevTrackPressCount = 0; // Reset press count after double press
-      }
+      // Go back one track
+      Serial.println(F("Going to previous track"));
+      myMP3.playPrevious();
+      delay(500); // wait for the track to load before getting the number
+      Serial.print(F("Track number is now: "));
+      Serial.println((myMP3.getTrackNumber()));
     }
     // Reset variables
     prevTrackButtonHoldStart = 0;
