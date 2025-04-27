@@ -50,7 +50,8 @@ SparkFunMY1690 myMP3;
 // Variables
 unsigned long nextTrackButtonHoldStart = 0; // Tracks when the button was first pressed
 unsigned long prevTrackButtonHoldStart = 0; // Tracks when the button was first pressed
-
+static unsigned long lastPrevTrackPressTime = 0; // Tracks the last button press time
+static int prevTrackPressCount = 0; // Tracks the number of button presses
 
 void setup() {
   Serial.begin(115200);
@@ -142,39 +143,56 @@ void loop() {
     fastForwardTriggered = false;
   }
 
-  // Handle prevTrackButton hold and press
+  // Handle prevTrackButton single press, double press, and hold
   static bool rewindTriggered = false; // Tracks if rewind was triggered
   static unsigned long lastRewindTime = 0; // Tracks the last time rewind() was called
 
   if (prevTrackButton.read() == LOW) { // Button is pressed
     if (prevTrackButtonHoldStart == 0) {
       prevTrackButtonHoldStart = millis(); // Record the time when the button was pressed
+    }
+  } else { // Button is released
+    if (prevTrackButtonHoldStart != 0 && millis() - prevTrackButtonHoldStart < 1000) {
+      // Button was pressed and released within 1 second
+      unsigned long currentTime = millis();
+      if (currentTime - lastPrevTrackPressTime <= 1500) { // Check for double press within 1.5 seconds
+        prevTrackPressCount++;
+      } else {
+        prevTrackPressCount = 1; // Reset press count if more than 1.5 seconds has passed
+      }
+      lastPrevTrackPressTime = currentTime;
+
+      if (prevTrackPressCount == 1) {
+        // Single press: Restart the current track
+        uint16_t currentTrackNum = myMP3.getTrackNumber(); // Get the current track number
+        Serial.print(F("Single Press. Restarting current track: "));
+        Serial.println(currentTrackNum);
+        myMP3.playPrevious();
+        myMP3.playNext();
+      } else if (prevTrackPressCount == 2) {
+        // Double press: Go to the previous track
+        Serial.print(F("Double press. Playing previous track: "));
+        myMP3.playPrevious();
+        delay(300);
+        uint16_t currentTrackNum = myMP3.getTrackNumber(); // Get the current track number
+        Serial.println(currentTrackNum);
+        prevTrackPressCount = 0; // Reset press count after double press
+      }
     } else if (millis() - prevTrackButtonHoldStart >= 1000) { // Check if held for 1 second
       if (!rewindTriggered) {
         rewindTriggered = true; // Mark rewind as triggered
-        lastRewindTime = millis(); // Initialize the timer for repeated calls
-        myMP3.rewind();
-        Serial.println(F("Rewinding"));
-      } else if (millis() - lastRewindTime >= 500) { // Repeat every 500ms
-        lastRewindTime = millis();
-        myMP3.rewind();
-        Serial.println(F("Rewinding"));
+        lastRewindTime = millis(); // Initialize the timer for repeated rewinding
+        if (millis() - lastRewindTime >= 500) { // Rewind every 500ms
+          lastRewindTime = millis();
+          myMP3.rewind();
+          Serial.println(F("Rewinding..."));
+        }
       }
-    }
-  } else { // Button is released
-    if (!rewindTriggered && prevTrackButtonHoldStart != 0 && millis() - prevTrackButtonHoldStart < 1000) {
-      // Go back one track
-      Serial.println(F("Going to previous track"));
-      myMP3.playPrevious();
-      delay(500); // wait for the track to load before getting the number
-      Serial.print(F("Track number is now: "));
-      Serial.println((myMP3.getTrackNumber()));
     }
     // Reset variables
     prevTrackButtonHoldStart = 0;
     rewindTriggered = false;
   }
-
 }
 
 void mainMenu() {
